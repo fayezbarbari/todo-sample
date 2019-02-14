@@ -1,0 +1,37 @@
+{
+  "name": "to-do-sample",
+  "version": "1.0.0",
+  "description": "ToDo Microservice",
+  "repository": "https://github.com/fayezbarbari/todo-sample.git",
+  "author": "Fayez Barbari",
+  "license": "MIT",
+  "jest": {
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "handlers/*.js",
+      "handlers/**/*.js"
+    ]
+  },
+  "eslintIgnore": [
+    "coverage",
+    "node_modules"
+  ],
+  "scripts": {
+    "debug": "sam local start-api -d 5858  -n env.json",
+    "start": "sam local start-api -n env.json",
+    "deploy": "sam package --template-file template.yaml --s3-bucket todo-package-bucket --output-template-file packaged.yaml && sam deploy --template-file ./packaged.yaml --stack-name todo-ms-stack --capabilities CAPABILITY_IAM",
+    "lint": "eslint .",
+    "test": "jest",
+    "watch": "jest --watchAll",
+    "test:spec": "jest --clearCache && jest -- $spec"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.372.0"
+  },
+  "devDependencies": {
+    "aws-sdk-mock": "^4.2.0",
+    "eslint": "^5.11.1",
+    "jest": "^23.6.0"
+  }
+}
