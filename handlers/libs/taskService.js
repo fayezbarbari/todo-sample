@@ -14,6 +14,9 @@ class TaskService {
   constructor() {
     this.tableName = process.env.TasksTable;
     this.idIndex = "IdIndex";
+    this.statusIndex = "StatusIndex";
+    this.parentIndex = "ParentIndex";
+    this.dueDateIndex = "DueDateIndex";
   }
 
   async add(userid, task) {
@@ -26,6 +29,12 @@ class TaskService {
     if (task.progress != undefined
       && (!Number.isInteger(task.progress) || task.progress < 0 || task.progress > 100))
       throw new Error(`Invalid progress value: ${task.progress}`);
+
+    if (!task.status)
+      task.status = "ToDo";
+    if (task.parent != undefined && !Number.isInteger(task.parent))
+      throw new Error(`Invalid task parent: ${task.parent}`);
+
 
     if (task.dueDate && isNaN(new Date(task.dueDate)))
       throw new Error(`Invalid due date: ${task.dueDate}`);
@@ -49,12 +58,20 @@ class TaskService {
     task.userid = userid;
     task.code = `${task.id}:TASK`;
     task.createDate = moment().toISOString();
+    task.taskStatus = task.status;
     if (task.dueDate)
-      task.dueDate = moment(task.dueDate).toISOString();
+      task.taskDueDate = moment(task.dueDate).toISOString();
+    if (task.parent)
+      task.taskParent = `${task.parent}:TASK`;
 
     let currentVersion = Object.assign({}, task, {
       code: `${task.id}:V${this._getVerionCode(task.version)}`
     });
+
+    // remove index properties
+    delete currentVersion.taskParent;
+    delete currentVersion.taskStatus;
+    delete currentVersion.taskDueDate;
 
     var params = {
       RequestItems: {}
@@ -69,6 +86,12 @@ class TaskService {
   }
 
   async get(userid, taskid, version) {
+    // validate
+    if (!userid)
+      throw new Error("Invalid user id");
+    if (!taskid)
+      throw new Error("Invalid task");
+
     let params = {
       TableName: this.tableName,
       Key: {
@@ -82,11 +105,17 @@ class TaskService {
   }
 
   async getHistory(userid, taskid) {
+    // validate
+    if (!userid)
+      throw new Error("Invalid user id");
+    if (!taskid)
+      throw new Error("Invalid task");
+
     let queryParam = {
       TableName: this.tableName,
       ScanIndexForward: false,
       KeyConditionExpression: "#uid = :uid and begins_with(#c, :c)",
-      ProjectionExpression: "#id, #v, #cd, #pri, #prog, #t",
+      ProjectionExpression: "#id, #v, #cd, #pri, #prog, #t, #s",
       ExpressionAttributeValues: {
         ":uid": userid,
         ":c": `${taskid}:V`
@@ -99,13 +128,122 @@ class TaskService {
         "#cd": "createDate",
         "#pri": "priority",
         "#prog": "progress",
-        "#t": "title"
+        "#t": "title",
+        "#s": "status"
       },
     };
 
-    let task = await Dynamo.query(queryParam);
-    if (task && task.Items && task.Items.length)
-      return task.Items;
+    let result = await Dynamo.query(queryParam);
+    if (result && result.Items && result.Items.length)
+      return result.Items;
+    return [];
+  }
+
+  async list(userid, status) {
+    // validate
+    if (!userid)
+      throw new Error("Invalid user id");
+    if (!status)
+      throw new Error("Invalid status");
+
+    let queryParam = {
+      TableName: this.tableName,
+      IndexName: this.statusIndex,
+      KeyConditionExpression: "#uid = :uid and #ts = :ts",
+      ProjectionExpression: "#id, #d, #pri, #prog, #t, #s, #p",
+      ExpressionAttributeValues: {
+        ":uid": userid,
+        ":ts": status
+      },
+      ExpressionAttributeNames: {
+        "#uid": "userid",
+        "#id": "id",
+        "#d": "dueDate",
+        "#pri": "priority",
+        "#prog": "progress",
+        "#t": "title",
+        "#s": "status",
+        "#ts": "taskStatus",
+        "#p": "parent"
+      }
+    };
+
+    let result = await Dynamo.query(queryParam);
+    if (result && result.Items && result.Items.length)
+      return result.Items;
+    return [];
+  }
+
+  async getSubTasks(userid, parent) {
+    // validate
+    if (!userid)
+      throw new Error("Invalid user id");
+    if (!parent)
+      throw new Error("Invalid task");
+
+    let queryParam = {
+      TableName: this.tableName,
+      IndexName: this.parentIndex,
+      KeyConditionExpression: "#uid = :uid and #tp = :tp",
+      ProjectionExpression: "#id, #d, #pri, #prog, #t, #s, #m, #p",
+      ExpressionAttributeValues: {
+        ":uid": userid,
+        ":tp": `${parent}:TASK`
+      },
+      ExpressionAttributeNames: {
+        "#uid": "userid",
+        "#id": "id",
+        "#d": "dueDate",
+        "#pri": "priority",
+        "#prog": "progress",
+        "#t": "title",
+        "#s": "status",
+        "#m": "main",
+        "#p": "parent",
+        "#tp": "taskParent"
+      }
+    };
+
+    let result = await Dynamo.query(queryParam);
+    if (result && result.Items && result.Items.length)
+      return result.Items;
+    return [];
+  }
+
+  async dueInMonth(userid) {
+    // validate
+    if (!userid)
+      throw new Error("Invalid user id");
+
+    let startDate = moment().toISOString();
+    let endDate = moment().add(1, "M").toISOString();
+
+    let queryParam = {
+      TableName: this.tableName,
+      IndexName: this.dueDateIndex,
+      KeyConditionExpression: "#uid = :uid and #tdd BETWEEN :sd AND :ed",
+      ProjectionExpression: "#id, #d, #pri, #prog, #t, #s, #p",
+      ExpressionAttributeValues: {
+        ":uid": userid,
+        ":sd": startDate,
+        ":ed": endDate
+      },
+      ExpressionAttributeNames: {
+        "#uid": "userid",
+        "#id": "id",
+        "#d": "dueDate",
+        "#tdd": "taskDueDate",
+        "#pri": "priority",
+        "#prog": "progress",
+        "#t": "title",
+        "#s": "status",
+        "#p": "parent"
+      }
+    };
+
+    let result = await Dynamo.query(queryParam);
+    if (result && result.Items && result.Items.length)
+      return result.Items;
     return [];
   }
 

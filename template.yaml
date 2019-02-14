@@ -94,6 +94,79 @@ Resources:
                         Path: /tasks/{id}/history
                         Method: get
                         RestApiId: !Ref ApiGateway 
+    GetSubTasksFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: handlers
+            Handler: getSubTasks.handler
+            Policies: 
+                - Statement:
+                    -
+                        Effect: Allow
+                        Action:
+                            - dynamodb:*
+                        Resource:
+                            - !GetAtt TasksTable.Arn
+                            - !Sub "${TasksTable.Arn}/index/*"
+            Environment:
+                Variables:
+                    TasksTable: !Ref TasksTable
+            Events:
+                GetTask:
+                    Type: Api
+                    Properties:
+                        Path: /tasks/{id}/subtasks
+                        Method: get
+                        RestApiId: !Ref ApiGateway 
+    ListTasksFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: handlers
+            Handler: list.handler
+            Policies: 
+                - Statement:
+                    -
+                        Effect: Allow
+                        Action:
+                            - dynamodb:*
+                        Resource:
+                            - !GetAtt TasksTable.Arn
+                            - !Sub "${TasksTable.Arn}/index/*"
+            Environment:
+                Variables:
+                    TasksTable: !Ref TasksTable
+            Events:
+                GetTask:
+                    Type: Api
+                    Properties:
+                        Path: /tasks/status/{status}
+                        Method: get
+                        RestApiId: !Ref ApiGateway 
+
+    ListDueThisMonthFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: handlers
+            Handler: dueThisMonth.handler
+            Policies: 
+                - Statement:
+                    -
+                        Effect: Allow
+                        Action:
+                            - dynamodb:*
+                        Resource:
+                            - !GetAtt TasksTable.Arn
+                            - !Sub "${TasksTable.Arn}/index/*"
+            Environment:
+                Variables:
+                    TasksTable: !Ref TasksTable
+            Events:
+                GetTask:
+                    Type: Api
+                    Properties:
+                        Path: /tasks/due
+                        Method: get
+                        RestApiId: !Ref ApiGateway 
     
     TasksTable:
         Type: AWS::DynamoDB::Table      
@@ -105,6 +178,12 @@ Resources:
               AttributeType: S  
             - AttributeName: id
               AttributeType: N
+            - AttributeName: taskStatus
+              AttributeType: S
+            - AttributeName: taskParent
+              AttributeType: S
+            - AttributeName: taskDueDate
+              AttributeType: S
             KeySchema:
             - AttributeName: userid
               KeyType: HASH
@@ -119,6 +198,30 @@ Resources:
                 KeyType: RANGE
               Projection:
                 ProjectionType: KEYS_ONLY
+            - IndexName: StatusIndex
+              KeySchema:
+              - AttributeName: userid
+                KeyType: HASH
+              - AttributeName: taskStatus
+                KeyType: RANGE
+              Projection:
+                ProjectionType: ALL
+            - IndexName: ParentIndex
+              KeySchema:
+              - AttributeName: userid
+                KeyType: HASH
+              - AttributeName: taskParent
+                KeyType: RANGE
+              Projection:
+                ProjectionType: ALL
+            - IndexName: DueDateIndex
+              KeySchema:
+              - AttributeName: userid
+                KeyType: HASH
+              - AttributeName: taskDueDate
+                KeyType: RANGE
+              Projection:
+                ProjectionType: ALL
             ProvisionedThroughput:
               ReadCapacityUnits: 5
               WriteCapacityUnits: 5
