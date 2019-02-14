@@ -26,7 +26,7 @@ class TaskService {
     if (!task)
       throw new Error("Invalid task");
 
-    if (task.progress != undefined
+    if (task.progress !== undefined
       && (!Number.isInteger(task.progress) || task.progress < 0 || task.progress > 100))
       throw new Error(`Invalid progress value: ${task.progress}`);
 
@@ -101,7 +101,7 @@ class TaskService {
     };
 
     const result = await Dynamo.get(params);
-    return result.Item || {};
+    return result.Item;
   }
 
   async getHistory(userid, taskid) {

@@ -8,29 +8,29 @@ class Api {
   }
 
   // Request params
-  get payload () {
+  get payload() {
     return typeof (this.event.body) == "string" ? JSON.parse(this.event.body) : this.event.body;
   }
 
-  get userid () {
+  get userid() {
     return this.params.userid;
   }
 
   // Responses
-  successResponse (body) {
+  successResponse(body) {
     return this._buildResponse(200, body);
   }
 
-  failureResponse (body) {
+  failureResponse(body) {
     return this._buildResponse(500, body);
   }
 
-  forbiddenResponse () {
+  forbiddenResponse() {
     return this._buildResponse(403, "Access denied");
   }
 
   // private functions
-  _buildResponse (statusCode, body) {
+  _buildResponse(statusCode, body) {
     let resp = (typeof (body) == "string") ? body : JSON.stringify(body);
     if (body instanceof Error && statusCode === 500)
       resp = (body || { message: "Unexpected error" }).message;
