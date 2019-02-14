@@ -70,6 +70,30 @@ Resources:
                         Path: /tasks/{id}/{version}
                         Method: get
                         RestApiId: !Ref ApiGateway 
+    GetTaskHistoryFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: handlers
+            Handler: getHistory.handler
+            Policies: 
+                - Statement:
+                    -
+                        Effect: Allow
+                        Action:
+                            - dynamodb:*
+                        Resource:
+                            - !GetAtt TasksTable.Arn
+                            - !Sub "${TasksTable.Arn}/index/*"
+            Environment:
+                Variables:
+                    TasksTable: !Ref TasksTable
+            Events:
+                GetTask:
+                    Type: Api
+                    Properties:
+                        Path: /tasks/{id}/history
+                        Method: get
+                        RestApiId: !Ref ApiGateway 
     
     TasksTable:
         Type: AWS::DynamoDB::Table      

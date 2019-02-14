@@ -81,6 +81,34 @@ class TaskService {
     return result.Item || {};
   }
 
+  async getHistory(userid, taskid) {
+    let queryParam = {
+      TableName: this.tableName,
+      ScanIndexForward: false,
+      KeyConditionExpression: "#uid = :uid and begins_with(#c, :c)",
+      ProjectionExpression: "#id, #v, #cd, #pri, #prog, #t",
+      ExpressionAttributeValues: {
+        ":uid": userid,
+        ":c": `${taskid}:V`
+      },
+      ExpressionAttributeNames: {
+        "#uid": "userid",
+        "#c": "code",
+        "#id": "id",
+        "#v": "version",
+        "#cd": "createDate",
+        "#pri": "priority",
+        "#prog": "progress",
+        "#t": "title"
+      },
+    };
+
+    let task = await Dynamo.query(queryParam);
+    if (task && task.Items && task.Items.length)
+      return task.Items;
+    return [];
+  }
+
   // private functions
   async _newId(userid) {
     let queryParam = {
