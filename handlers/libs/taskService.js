@@ -73,12 +73,12 @@ class TaskService {
       TableName: this.tableName,
       Key: {
         userid,
-        code: version == null ? `${taskid}:TASK` : `${taskid}:V${this._getVerionCode(version)}`
+        code: !version ? `${taskid}:TASK` : `${taskid}:V${this._getVerionCode(version)}`
       }
     };
 
     const result = await Dynamo.get(params);
-    return result.Item;
+    return result.Item || {};
   }
 
   // private functions

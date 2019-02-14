@@ -33,14 +33,43 @@ Resources:
             Environment:
                 Variables:
                     TasksTable: !Ref TasksTable
-
             Events:
                 AddTask:
                     Type: Api
                     Properties:
                         Path: /tasks
                         Method: post
-                        RestApiId: !Ref ApiGateway                        
+                        RestApiId: !Ref ApiGateway 
+    GetTaskFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: handlers
+            Handler: get.handler
+            Policies: 
+                - Statement:
+                    -
+                        Effect: Allow
+                        Action:
+                            - dynamodb:*
+                        Resource:
+                            - !GetAtt TasksTable.Arn
+                            - !Sub "${TasksTable.Arn}/index/*"
+            Environment:
+                Variables:
+                    TasksTable: !Ref TasksTable
+            Events:
+                GetTask:
+                    Type: Api
+                    Properties:
+                        Path: /tasks/{id}
+                        Method: get
+                        RestApiId: !Ref ApiGateway 
+                GetTaskVersion:
+                    Type: Api
+                    Properties:
+                        Path: /tasks/{id}/{version}
+                        Method: get
+                        RestApiId: !Ref ApiGateway 
     
     TasksTable:
         Type: AWS::DynamoDB::Table      
