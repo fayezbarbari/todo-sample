@@ -26,6 +26,10 @@ class Dynamo {
   get(params) {
     return this.dynamoClient.get(params).promise();
   }
+
+  batchWriteItem(params) {
+    return this.dynamoClient.batchWrite(params).promise();
+  }
 }
 
 module.exports = new Dynamo();

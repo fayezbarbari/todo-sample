@@ -49,12 +49,23 @@ Resources:
             - AttributeName: userid
               AttributeType: S
             - AttributeName: code
-              AttributeType: S            
+              AttributeType: S  
+            - AttributeName: id
+              AttributeType: N
             KeySchema:
             - AttributeName: userid
               KeyType: HASH
             - AttributeName: code
               KeyType: RANGE
+            LocalSecondaryIndexes:
+            - IndexName: IdIndex
+              KeySchema:
+              - AttributeName: userid
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+              Projection:
+                ProjectionType: KEYS_ONLY
             ProvisionedThroughput:
               ReadCapacityUnits: 5
               WriteCapacityUnits: 5
