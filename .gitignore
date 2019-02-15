@@ -58,6 +58,8 @@ handlers/node_modules/
 jspm_packages/
 package-lock.json
 handlers/package-lock.json
+app/node_modules
+app/package-lock.json
 
 # Typescript v1 declaration files
 typings/

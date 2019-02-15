@@ -225,4 +225,13 @@ Resources:
             ProvisionedThroughput:
               ReadCapacityUnits: 5
               WriteCapacityUnits: 5
-            
+Outputs:
+    APIUrl:
+        Description: todo-sample API URL
+        Value: !Join
+            - ''
+            - - https://
+              - !Ref ApiGateway
+              - ".execute-api."
+              - !Ref AWS::Region
+              - ".amazonaws.com/prod/"
