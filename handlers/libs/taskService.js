@@ -31,7 +31,7 @@ class TaskService {
       throw new Error(`Invalid progress value: ${task.progress}`);
 
     if (!task.status)
-      task.status = "ToDo";
+      task.status = "Draft";
     if (task.parent != undefined && !Number.isInteger(task.parent))
       throw new Error(`Invalid task parent: ${task.parent}`);
 
@@ -58,7 +58,7 @@ class TaskService {
     task.userid = userid;
     task.code = `${task.id}:TASK`;
     task.createDate = moment().toISOString();
-    task.taskStatus = task.status;
+    task.taskStatus = task.status.toUpperCase().replace(/[ ]+/g, "");
     if (task.dueDate)
       task.taskDueDate = moment(task.dueDate).toISOString();
     if (task.parent)
@@ -145,6 +145,8 @@ class TaskService {
       throw new Error("Invalid user id");
     if (!status)
       throw new Error("Invalid status");
+
+    status = status.toUpperCase().replace(/[ ]+/g, "");
 
     let queryParam = {
       TableName: this.tableName,

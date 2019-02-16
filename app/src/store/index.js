@@ -14,7 +14,10 @@ export default new Vuex.Store({
   state: {
     signedIn: false,
     userid: null,
-    dueTasks: []
+    dueTasks: [],
+    doneTasks: [],
+    inProgressTasks: [],
+    draftTasks: []
   },
 
   getters: {
@@ -27,6 +30,15 @@ export default new Vuex.Store({
 
     dueTasks(state) {
       return state.dueTasks;
+    },
+    doneTasks(state) {
+      return state.doneTasks;
+    },
+    inProgressTasks(state) {
+      return state.inProgressTasks;
+    },
+    draftTasks(state) {
+      return state.draftTasks;
     }
   },
 
@@ -40,6 +52,15 @@ export default new Vuex.Store({
 
     SET_DUE_TASKS(state, dueTasks) {
       state.dueTasks = dueTasks;
+    },
+    SET_DONE_TASKS(state, tasks) {
+      state.doneTasks = tasks;
+    },
+    SET_IN_PROGRESS_TASKS(state, tasks) {
+      state.inProgressTasks = tasks;
+    },
+    SET_DRAFT_TASKS(state, tasks) {
+      state.draftTasks = tasks;
     }
   },
 
@@ -55,6 +76,15 @@ export default new Vuex.Store({
 
     setDueTasks({ commit }, dueTasks) {
       commit("SET_DUE_TASKS", dueTasks);
+    },
+    setDoneTasks({ commit }, tasks) {
+      commit("SET_DONE_TASKS", tasks);
+    },
+    setInProgressTasks({ commit }, tasks) {
+      commit("SET_IN_PROGRESS_TASKS", tasks);
+    },
+    setDraftTasks({ commit }, tasks) {
+      commit("SET_DRAFT_TASKS", tasks);
     }
   }
 });
