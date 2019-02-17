@@ -3,6 +3,8 @@ import Router from "vue-router";
 import Home from "./views/Home.vue";
 import Signin from "./views/Signin.vue";
 import Tasks from "./views/Tasks.vue";
+import ViewTask from "./views/ViewTask.vue";
+import ViewTaskHistory from "./views/ViewTaskHistory.vue";
 
 import store from "@/store/index";
 
@@ -34,6 +36,24 @@ export default new Router({
       path: "/tasks",
       name: "tasks",
       component: Tasks,
+      beforeEnter: authRoute
+    },
+    {
+      path: "/tasks/:id",
+      name: "view task",
+      component: ViewTask,
+      beforeEnter: authRoute
+    },
+    {
+      path: "/tasks/:id/new/:subtask",
+      name: "add subtask task",
+      component: ViewTask,
+      beforeEnter: authRoute
+    },
+    {
+      path: "/tasks/:id/:version",
+      name: "view task history",
+      component: ViewTaskHistory,
       beforeEnter: authRoute
     },
     // {

@@ -1,6 +1,12 @@
 <template>
   <div>
-    <br />
+    <v-container>
+      <v-layout column>
+        <v-flex>
+          <v-btn color="primary" @click="newTask">Add Task</v-btn>
+        </v-flex>
+      </v-layout>
+    </v-container>
     <h2
       v-if="
         (!draftTasks || !draftTasks.length) &&
@@ -54,7 +60,10 @@ export default {
       setDoneTasks: "setDoneTasks",
       setInProgressTasks: "setInProgressTasks",
       setDraftTasks: "setDraftTasks"
-    })
+    }),
+    newTask() {
+      this.$router.push(`/tasks/new`);
+    }
   },
   async created() {
     let donePromise = API.get(

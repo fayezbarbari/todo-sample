@@ -3,7 +3,7 @@
     <br />
     <h2 v-if="!userid">ToDo Sample App!</h2>
     <task-list
-      title="Due this month"
+      title="Tasks due this month"
       title-color="red darken-1"
       show-status="true"
       empty-message="You don't have any task due this month!"

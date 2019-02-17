@@ -115,7 +115,7 @@ class TaskService {
       TableName: this.tableName,
       ScanIndexForward: false,
       KeyConditionExpression: "#uid = :uid and begins_with(#c, :c)",
-      ProjectionExpression: "#id, #v, #cd, #pri, #prog, #t, #s",
+      ProjectionExpression: "#id, #v, #cd, #d, #pri, #prog, #t, #s",
       ExpressionAttributeValues: {
         ":uid": userid,
         ":c": `${taskid}:V`
@@ -126,6 +126,7 @@ class TaskService {
         "#id": "id",
         "#v": "version",
         "#cd": "createDate",
+        "#d": "dueDate",
         "#pri": "priority",
         "#prog": "progress",
         "#t": "title",
