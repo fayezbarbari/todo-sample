@@ -61,7 +61,7 @@
                       :value="task.progress"
                       color="#049b4b"
                     >
-                      %{{ task.progress }}
+                      {{ task.progress }}%
                     </v-progress-circular>
                   </v-list-tile-action-text>
                 </v-list-tile-action>

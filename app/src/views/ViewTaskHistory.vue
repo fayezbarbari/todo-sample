@@ -50,7 +50,7 @@
                 :value="taskHistory.progress"
                 color="#049b4b"
               >
-                %{{ taskHistory.progress }}
+                {{ taskHistory.progress }}%
               </v-progress-circular>
               <br />
               <v-icon :color="getPriorityColor(taskHistory.priority)">{{
