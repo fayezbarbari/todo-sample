@@ -1,11 +1,11 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: todo-ms-sample
 
 Globals:
     Function:
-        Runtime: nodejs8.10
-        Timeout: 3    
+        Runtime: nodejs12.x
+        Timeout: 3
 
 Resources:
     ApiGateway:
@@ -21,10 +21,9 @@ Resources:
         Properties:
             CodeUri: handlers
             Handler: add.handler
-            Policies: 
+            Policies:
                 - Statement:
-                    -
-                        Effect: Allow
+                      - Effect: Allow
                         Action:
                             - dynamodb:*
                         Resource:
@@ -39,16 +38,15 @@ Resources:
                     Properties:
                         Path: /tasks
                         Method: post
-                        RestApiId: !Ref ApiGateway 
+                        RestApiId: !Ref ApiGateway
     GetTaskFunction:
         Type: AWS::Serverless::Function
         Properties:
             CodeUri: handlers
             Handler: get.handler
-            Policies: 
+            Policies:
                 - Statement:
-                    -
-                        Effect: Allow
+                      - Effect: Allow
                         Action:
                             - dynamodb:*
                         Resource:
@@ -63,22 +61,21 @@ Resources:
                     Properties:
                         Path: /tasks/{id}
                         Method: get
-                        RestApiId: !Ref ApiGateway 
+                        RestApiId: !Ref ApiGateway
                 GetTaskVersion:
                     Type: Api
                     Properties:
                         Path: /tasks/{id}/{version}
                         Method: get
-                        RestApiId: !Ref ApiGateway 
+                        RestApiId: !Ref ApiGateway
     GetTaskHistoryFunction:
         Type: AWS::Serverless::Function
         Properties:
             CodeUri: handlers
             Handler: getHistory.handler
-            Policies: 
+            Policies:
                 - Statement:
-                    -
-                        Effect: Allow
+                      - Effect: Allow
                         Action:
                             - dynamodb:*
                         Resource:
@@ -93,16 +90,15 @@ Resources:
                     Properties:
                         Path: /tasks/{id}/history
                         Method: get
-                        RestApiId: !Ref ApiGateway 
+                        RestApiId: !Ref ApiGateway
     GetSubTasksFunction:
         Type: AWS::Serverless::Function
         Properties:
             CodeUri: handlers
             Handler: getSubTasks.handler
-            Policies: 
+            Policies:
                 - Statement:
-                    -
-                        Effect: Allow
+                      - Effect: Allow
                         Action:
                             - dynamodb:*
                         Resource:
@@ -117,16 +113,15 @@ Resources:
                     Properties:
                         Path: /tasks/{id}/subtasks
                         Method: get
-                        RestApiId: !Ref ApiGateway 
+                        RestApiId: !Ref ApiGateway
     ListTasksFunction:
         Type: AWS::Serverless::Function
         Properties:
             CodeUri: handlers
             Handler: list.handler
-            Policies: 
+            Policies:
                 - Statement:
-                    -
-                        Effect: Allow
+                      - Effect: Allow
                         Action:
                             - dynamodb:*
                         Resource:
@@ -141,17 +136,16 @@ Resources:
                     Properties:
                         Path: /tasks/status/{status}
                         Method: get
-                        RestApiId: !Ref ApiGateway 
+                        RestApiId: !Ref ApiGateway
 
     ListDueThisMonthFunction:
         Type: AWS::Serverless::Function
         Properties:
             CodeUri: handlers
             Handler: dueThisMonth.handler
-            Policies: 
+            Policies:
                 - Statement:
-                    -
-                        Effect: Allow
+                      - Effect: Allow
                         Action:
                             - dynamodb:*
                         Resource:
@@ -166,70 +160,70 @@ Resources:
                     Properties:
                         Path: /tasks/due
                         Method: get
-                        RestApiId: !Ref ApiGateway 
-    
+                        RestApiId: !Ref ApiGateway
+
     TasksTable:
-        Type: AWS::DynamoDB::Table      
+        Type: AWS::DynamoDB::Table
         Properties:
             AttributeDefinitions:
-            - AttributeName: userid
-              AttributeType: S
-            - AttributeName: code
-              AttributeType: S  
-            - AttributeName: id
-              AttributeType: N
-            - AttributeName: taskStatus
-              AttributeType: S
-            - AttributeName: taskParent
-              AttributeType: S
-            - AttributeName: taskDueDate
-              AttributeType: S
+                - AttributeName: userid
+                  AttributeType: S
+                - AttributeName: code
+                  AttributeType: S
+                - AttributeName: id
+                  AttributeType: N
+                - AttributeName: taskStatus
+                  AttributeType: S
+                - AttributeName: taskParent
+                  AttributeType: S
+                - AttributeName: taskDueDate
+                  AttributeType: S
             KeySchema:
-            - AttributeName: userid
-              KeyType: HASH
-            - AttributeName: code
-              KeyType: RANGE
+                - AttributeName: userid
+                  KeyType: HASH
+                - AttributeName: code
+                  KeyType: RANGE
             LocalSecondaryIndexes:
-            - IndexName: IdIndex
-              KeySchema:
-              - AttributeName: userid
-                KeyType: HASH
-              - AttributeName: id
-                KeyType: RANGE
-              Projection:
-                ProjectionType: KEYS_ONLY
-            - IndexName: StatusIndex
-              KeySchema:
-              - AttributeName: userid
-                KeyType: HASH
-              - AttributeName: taskStatus
-                KeyType: RANGE
-              Projection:
-                ProjectionType: ALL
-            - IndexName: ParentIndex
-              KeySchema:
-              - AttributeName: userid
-                KeyType: HASH
-              - AttributeName: taskParent
-                KeyType: RANGE
-              Projection:
-                ProjectionType: ALL
-            - IndexName: DueDateIndex
-              KeySchema:
-              - AttributeName: userid
-                KeyType: HASH
-              - AttributeName: taskDueDate
-                KeyType: RANGE
-              Projection:
-                ProjectionType: ALL
+                - IndexName: IdIndex
+                  KeySchema:
+                      - AttributeName: userid
+                        KeyType: HASH
+                      - AttributeName: id
+                        KeyType: RANGE
+                  Projection:
+                      ProjectionType: KEYS_ONLY
+                - IndexName: StatusIndex
+                  KeySchema:
+                      - AttributeName: userid
+                        KeyType: HASH
+                      - AttributeName: taskStatus
+                        KeyType: RANGE
+                  Projection:
+                      ProjectionType: ALL
+                - IndexName: ParentIndex
+                  KeySchema:
+                      - AttributeName: userid
+                        KeyType: HASH
+                      - AttributeName: taskParent
+                        KeyType: RANGE
+                  Projection:
+                      ProjectionType: ALL
+                - IndexName: DueDateIndex
+                  KeySchema:
+                      - AttributeName: userid
+                        KeyType: HASH
+                      - AttributeName: taskDueDate
+                        KeyType: RANGE
+                  Projection:
+                      ProjectionType: ALL
             ProvisionedThroughput:
-              ReadCapacityUnits: 5
-              WriteCapacityUnits: 5
+                ReadCapacityUnits: 5
+                WriteCapacityUnits: 5
 Outputs:
     APIUrl:
         Description: todo-sample API URL
         Value: !Join
-            - ''
+            - ""
             - - https://
               - !Ref ApiGateway
               - ".execute-api."
